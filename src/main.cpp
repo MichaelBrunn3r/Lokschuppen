@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <ESPAsyncWebServer.h>
+#include <LittleFS.h>
 
 #ifdef ESP32
   #include <WiFi.h>
@@ -16,6 +17,15 @@
 #include "debug.h"
 
 AsyncWebServer server(80);
+
+void handleRoot(AsyncWebServerRequest *request) {
+  if(!LittleFS.begin()){
+    logln("Error: Cannot mount LittleFS");
+    return;
+  }
+
+  request->send(LittleFS, "/index.html", "text/html");
+}
 
 bool connectToAccessPoint() {
   #if USE_INTRANET
@@ -39,10 +49,8 @@ bool connectToAccessPoint() {
 }
 
 void initServer() {
-  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
-      request->send(200, "text/html", "<h1>Hello world</h1>");
-  });
-
+  server.on("/", HTTP_GET, handleRoot);
+  server.serveStatic("/", LittleFS, "/");
   server.begin();
 }
 

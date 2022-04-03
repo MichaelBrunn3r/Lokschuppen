@@ -6,3 +6,6 @@
 
 ### Videos
 - [Kris Kasprzak](https://www.youtube.com/watch?v=pL3dhGtmcMY)
+
+### Articles
+- Randomnerdtutorials: [PlatformIO littlefs](https://randomnerdtutorials.com/esp8266-nodemcu-vs-code-platformio-littlefs/)
