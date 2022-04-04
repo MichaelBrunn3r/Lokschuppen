@@ -10,7 +10,6 @@
 #include "credentials.h"
 #include "debug.h"
 
-const char* hostname = "lokschuppen";
 AsyncWebServer server(80);
 IPAddress ip;
 
@@ -24,10 +23,10 @@ void handleRoot(AsyncWebServerRequest* request) {
 }
 
 bool connectToWiFi() {
-    log_i("Connecting to WiFi ... ");
+    log_i("Connecting to WiFi as '%s' ... ", WiFi_HOSTNAME);
     WiFi.mode(WIFI_STA);
     WiFi.config(INADDR_NONE, INADDR_NONE, INADDR_NONE, INADDR_NONE);
-    WiFi.setHostname(hostname);
+    WiFi.setHostname(WiFi_HOSTNAME);
     WiFi.begin(WiFi_SSID, WiFi_PASSWORD);
     if (WiFi.waitForConnectResult() != WL_CONNECTED) {
         log_i("Failed!");
@@ -40,11 +39,11 @@ bool connectToWiFi() {
 }
 
 bool createAccessPoint() {
-    log_i("Creating Access Point ... ");
+    log_i("Creating Access Point '%s' ... ", AP_SSID);
     WiFi.softAP(AP_SSID, AP_PASSWORD);
     log_i("OK");
     ip = WiFi.softAPIP();
-    log_i("Access Point IP Address: %d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
+    log_i("IP Address: %d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
     return true;
 }
 
