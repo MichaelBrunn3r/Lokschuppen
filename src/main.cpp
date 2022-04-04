@@ -1,14 +1,8 @@
 #include <Arduino.h>
 #include <ESPAsyncWebServer.h>
-#include <LittleFS.h>
-
-#ifdef ESP32
-  #include <WiFi.h>
-  #include <AsyncTCP.h>
-#elif defined(ESP8266)
-  #include <ESP8266WiFi.h>
-  #include <ESPAsyncTCP.h>
-#endif
+#include <WiFi.h>
+#include <AsyncTCP.h>
+#include <SPIFFS.h>
 
 #define USE_INTRANET true
 #define DEBUG true
@@ -16,21 +10,23 @@
 #include "credentials.h"
 #include "debug.h"
 
+const char* hostname = "lokschuppen";
 AsyncWebServer server(80);
 
 void handleRoot(AsyncWebServerRequest *request) {
-  if(!LittleFS.begin()){
-    logln("Error: Cannot mount LittleFS");
+  if(!SPIFFS.begin()){
+    logln("Error: Cannot mount filesystem");
     return;
   }
 
-  request->send(LittleFS, "/index.html", "text/html");
+  request->send(SPIFFS, "/index.html", "text/html");
 }
 
 bool connectToAccessPoint() {
   #if USE_INTRANET
     log("Connecting to WiFi ... ");
     WiFi.mode(WIFI_STA);
+    WiFi.setHostname(hostname);
     WiFi.begin(WiFi_SSID, WiFi_PASSWORD);
     if (WiFi.waitForConnectResult() != WL_CONNECTED) {
       logln("Failed!");
@@ -50,7 +46,7 @@ bool connectToAccessPoint() {
 
 void initServer() {
   server.on("/", HTTP_GET, handleRoot);
-  server.serveStatic("/", LittleFS, "/");
+  server.serveStatic("/", SPIFFS, "/");
   server.begin();
 }
 
