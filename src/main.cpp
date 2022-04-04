@@ -12,6 +12,7 @@
 
 const char* hostname = "lokschuppen";
 AsyncWebServer server(80);
+IPAddress ip;
 
 void handleRoot(AsyncWebServerRequest* request) {
     if (!SPIFFS.begin()) {
@@ -22,28 +23,28 @@ void handleRoot(AsyncWebServerRequest* request) {
     request->send(SPIFFS, "/index.html", "text/html");
 }
 
-bool connectToAccessPoint() {
-#if USE_INTRANET
-    log("Connecting to WiFi ... ");
+bool connectToWiFi() {
+    log_i("Connecting to WiFi ... ");
     WiFi.mode(WIFI_STA);
     WiFi.config(INADDR_NONE, INADDR_NONE, INADDR_NONE, INADDR_NONE);
     WiFi.setHostname(hostname);
     WiFi.begin(WiFi_SSID, WiFi_PASSWORD);
     if (WiFi.waitForConnectResult() != WL_CONNECTED) {
-        logln("Failed!");
+        log_i("Failed!");
         return false;
     }
-    logln("OK");
-    log("IP Address: ");
-    logln(WiFi.localIP());
-#else
-    logln("Creating Access Point ... ");
-    WiFi.softAP(AP_SSID, AP_PASSWORD);
-    logln("OK");
-    log("IP Address: ");
-    logln(WiFi.softAPIP());
-#endif
+    log_i("OK");
+    ip = WiFi.localIP();
+    log_i("IP Address: %d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
+    return true;
+}
 
+bool createAccessPoint() {
+    log_i("Creating Access Point ... ");
+    WiFi.softAP(AP_SSID, AP_PASSWORD);
+    log_i("OK");
+    ip = WiFi.softAPIP();
+    log_i("Access Point IP Address: %d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
     return true;
 }
 
@@ -60,9 +61,10 @@ void setup() {
     }
     Serial.println();
 
-    // Init server
-    if (!connectToAccessPoint())
+    // Connect to WiFi. Create Access Point as a fallback
+    if (!connectToWiFi() && !createAccessPoint())
         return;
+
     initServer();
 }
 
