@@ -10,6 +10,10 @@
 #include "credentials.h"
 #include "debug.h"
 
+const size_t BUTTON_PINS[] = {GPIO_NUM_12, GPIO_NUM_14, GPIO_NUM_27, GPIO_NUM_26,
+                              GPIO_NUM_25, GPIO_NUM_33, GPIO_NUM_32};
+const size_t NUM_BUTTONS = sizeof(BUTTON_PINS) / sizeof(size_t);
+
 AsyncWebServer server(80);
 IPAddress ip;
 
@@ -54,6 +58,11 @@ void initServer() {
 }
 
 void setup() {
+    // Init button pins
+    for (int i = 0; i < NUM_BUTTONS; i++) {
+        pinMode(BUTTON_PINS[i], INPUT_PULLDOWN);
+    }
+
     // Init serial connection
     Serial.begin(115200);
     while (!Serial && !Serial.available()) {
