@@ -32,3 +32,4 @@ Randomnerds
 Other:
 
 -   [Thingpulse: ESP32 Logging](https://thingpulse.com/esp32-logging/)
+-   [Lastminuteengineers: ESP32 GPIO Interrupts](https://lastminuteengineers.com/handling-esp32-gpio-interrupts-tutorial/)
