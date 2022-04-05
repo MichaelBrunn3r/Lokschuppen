@@ -1,8 +1,10 @@
+#include <Adafruit_PWMServoDriver.h>
 #include <Arduino.h>
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 #include <SPIFFS.h>
 #include <WiFi.h>
+#include <Wire.h>
 
 #define USE_INTRANET true
 #define DEBUG true
@@ -16,6 +18,11 @@ const size_t NUM_BUTTONS = sizeof(BUTTON_PINS) / sizeof(size_t);
 
 AsyncWebServer server(80);
 IPAddress ip;
+
+#define SERVO_MIN 150 // minimum pulse length count / 4096
+#define SERVO_MAX 600 // maximum pulse length count / 4096
+#define SERVO_FREQ 50 // Analog servos run at ~50 Hz updates
+Adafruit_PWMServoDriver servoController = Adafruit_PWMServoDriver(0x40);
 
 void handleRoot(AsyncWebServerRequest* request) {
     if (!SPIFFS.begin()) {
@@ -57,6 +64,14 @@ void initServer() {
     server.begin();
 }
 
+void initServoController() {
+    servoController.begin();
+    servoController.setOscillatorFrequency(27000000);
+    servoController.setPWMFreq(SERVO_FREQ);
+}
+
+unsigned int angleToPulse(unsigned int angle) { return map(angle, 0, 180, SERVO_MIN, SERVO_MAX); }
+
 void setup() {
     // Init button pins
     for (int i = 0; i < NUM_BUTTONS; i++) {
@@ -72,8 +87,9 @@ void setup() {
     // Connect to WiFi. Create Access Point as a fallback
     if (!connectToWiFi() && !createAccessPoint())
         return;
-
     initServer();
+
+    initServoController();
 }
 
 void loop() {}
