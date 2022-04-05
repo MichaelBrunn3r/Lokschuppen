@@ -7,6 +7,15 @@
 
 ## Videos
 
+[Robojax](https://www.youtube.com/channel/UCkcBSig_Iu4ZnAIeCeG1TVg):
+
+-   [Controlling 32 Servo motors with PCA9685 and ESP32 - V4](https://www.youtube.com/watch?v=JFdXB8Za5Os)
+    -   How to wire PCA9685
+-   [Complete guide to PCA9685 16 channel Servo controller for Arduino with code - V1](https://www.youtube.com/watch?v=y8X9X10Tn1k)
+    -   Find min and max pulse length for servos
+
+Other:
+
 -   Kris Kasprzak: [ESP32 Web Server, Page Create/Update Tutorial](https://www.youtube.com/watch?v=pL3dhGtmcMY)
     -   XHTTP
     -   Website source as a [C++11 raw string literal](https://en.cppreference.com/w/cpp/language/string_literal) (e.g. `R"===(<html>...</html>)==="`)
@@ -15,7 +24,7 @@
 ## Docs
 
 -   Espriff: [ESP32-DevKitC V4 Getting Started Guide](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/hw-reference/esp32/get-started-devkitc.html)
-    -   [Pin Layout](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/hw-reference/esp32/get-started-devkitc.html#pin-layout)
+    -   [Pin Layout](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/_images/esp32-devkitC-v4-pinout.png)
 
 ## Articles
 
