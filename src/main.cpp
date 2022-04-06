@@ -16,11 +16,17 @@ const size_t BUTTON_PINS[] = {GPIO_NUM_12, GPIO_NUM_14, GPIO_NUM_27, GPIO_NUM_26
                               GPIO_NUM_25, GPIO_NUM_33, GPIO_NUM_32};
 const size_t NUM_BUTTONS = sizeof(BUTTON_PINS) / sizeof(size_t);
 
+struct ServoTickRange {
+    uint16_t min;
+    uint16_t max;
+};
+
+const ServoTickRange SERVO_TICK_RANGES[] = {{150, 586}, {150, 452}, {150, 490}, {150, 479},
+                                            {150, 463}, {150, 492}, {150, 465}};
+
 AsyncWebServer server(80);
 IPAddress ip;
 
-#define SERVO_MIN 150 // minimum pulse length count / 4096
-#define SERVO_MAX 600 // maximum pulse length count / 4096
 #define SERVO_FREQ 50 // Analog servos run at ~50 Hz updates
 Adafruit_PWMServoDriver servoController = Adafruit_PWMServoDriver(0x40);
 
@@ -70,7 +76,9 @@ void initServoController() {
     servoController.setPWMFreq(SERVO_FREQ);
 }
 
-unsigned int angleToPulse(unsigned int angle) { return map(angle, 0, 180, SERVO_MIN, SERVO_MAX); }
+unsigned int angleToTicks(unsigned int angle, uint16_t min_ticks, uint16_t max_ticks) {
+    return map(angle, 0, 180, min_ticks, max_ticks);
+}
 
 void setup() {
     // Init button pins
