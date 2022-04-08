@@ -9,6 +9,7 @@
 #define USE_INTRANET true
 #define DEBUG true
 
+#include "button.h"
 #include "credentials.h"
 #include "debug.h"
 #include "servo.h"
@@ -96,8 +97,4 @@ void setup() {
         return;
     initServer();
 }
-
-    initServoController();
-}
-
 void loop() {}
