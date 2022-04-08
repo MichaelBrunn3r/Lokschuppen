@@ -17,11 +17,13 @@ const size_t BUTTON_PINS[] = {GPIO_NUM_12, GPIO_NUM_14, GPIO_NUM_27, GPIO_NUM_26
                               GPIO_NUM_25, GPIO_NUM_33, GPIO_NUM_32};
 const size_t NUM_BUTTONS = sizeof(BUTTON_PINS) / sizeof(size_t);
 
-const Range<PWMTicks> SERVO_TICK_RANGES[] = {{114, 489}, {100, 452}, {114, 500}, {108, 457},
-                                             {102, 462}, {109, 488}, {105, 461}};
-
-ServoSpecs servoSpecs = MG_996R_SPECS;
-uint16_t iiii;
+ServoSpecs servoSpecs = SG_90_SPECS;
+Servo SERVOS[] = {
+    Servo(48, 530, 7, 219.090912),
+    Servo(48, 530, 7.164179, 215.820908),
+    Servo(48, 530, -0.918367, 221.326523),
+    Servo(48, 530, 6.887755, 221.326523),
+};
 
 AsyncWebServer server(80);
 IPAddress ip;
