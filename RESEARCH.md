@@ -14,6 +14,10 @@
 -   [Complete guide to PCA9685 16 channel Servo controller for Arduino with code - V1](https://www.youtube.com/watch?v=y8X9X10Tn1k)
     -   Find min and max pulse length for servos
 
+Others:
+
+-   Andreas Spiess: [ESP32 Secrets: Interrupts, and Deep-Sleep under the Hood](https://www.youtube.com/watch?v=CJhWlfkf-5M)
+
 Other:
 
 -   Kris Kasprzak: [ESP32 Web Server, Page Create/Update Tutorial](https://www.youtube.com/watch?v=pL3dhGtmcMY)
@@ -25,6 +29,7 @@ Other:
 
 -   Espriff: [ESP32-DevKitC V4 Getting Started Guide](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/hw-reference/esp32/get-started-devkitc.html)
     -   [Pin Layout](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/_images/esp32-devkitC-v4-pinout.png)
+    -   [Bind iterrupt to instace method example](https://github.com/espressif/arduino-esp32/blob/5502879a5b25e5fff84a7058f448be481c0a1f73/libraries/ESP32/examples/GPIO/FunctionalInterrupt/FunctionalInterrupt.ino#L10-L13)
 
 ## Articles
 

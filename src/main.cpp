@@ -13,9 +13,13 @@
 #include "debug.h"
 #include "servo.h"
 
-const size_t BUTTON_PINS[] = {GPIO_NUM_12, GPIO_NUM_14, GPIO_NUM_27, GPIO_NUM_26,
-                              GPIO_NUM_25, GPIO_NUM_33, GPIO_NUM_32};
-const size_t NUM_BUTTONS = sizeof(BUTTON_PINS) / sizeof(size_t);
+InterruptButton BUTTONS[] = {
+    InterruptButton(GPIO_NUM_32, INPUT_PULLDOWN), InterruptButton(GPIO_NUM_33, INPUT_PULLDOWN),
+    InterruptButton(GPIO_NUM_25, INPUT_PULLDOWN), InterruptButton(GPIO_NUM_26, INPUT_PULLDOWN),
+    InterruptButton(GPIO_NUM_27, INPUT_PULLDOWN), InterruptButton(GPIO_NUM_14, INPUT_PULLDOWN),
+    InterruptButton(GPIO_NUM_12, INPUT_PULLDOWN),
+};
+const size_t NUM_BUTTONS = sizeof(BUTTONS) / sizeof(InterruptButton);
 
 ServoSpecs servoSpecs = SG_90_SPECS;
 Servo SERVOS[] = {
@@ -84,11 +88,6 @@ void initSerial() {
 }
 
 void setup() {
-    // Init button pins
-    for (int i = 0; i < NUM_BUTTONS; i++) {
-        pinMode(BUTTON_PINS[i], INPUT_PULLDOWN);
-    }
-
     initSerial();
 
     // Connect to WiFi. Create Access Point as a fallback
