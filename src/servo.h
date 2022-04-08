@@ -1,8 +1,8 @@
 #include "utils.h"
 #include <Arduino.h>
 
-typedef int Angle;
-typedef uint16_t PWMTick;
+typedef float Angle;
+typedef uint16_t PWMTicks;
 
 struct ServoSpecs {
     // PWM frequency in Hz
@@ -12,6 +12,6 @@ struct ServoSpecs {
 
 ServoSpecs MG_996R_SPECS = {50, {-100, 100}};
 
-PWMTick angleToTicks(unsigned int angle, Range<Angle> angleRange, Range<PWMTick> tickRange) {
+PWMTicks angleToTicks(unsigned int angle, Range<Angle> angleRange, Range<PWMTicks> tickRange) {
     return map(angle, angleRange.min, angleRange.max, tickRange.min, tickRange.max);
 }
