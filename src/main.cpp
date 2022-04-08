@@ -74,7 +74,7 @@ void initServer() {
     server.begin();
 }
 
-void initServoController() {
+void initServoDriver() {
     servoDriver.begin();
     servoDriver.setOscillatorFrequency(27000000);
     servoDriver.setPWMFreq(servoSpecs.frequency);
@@ -89,11 +89,13 @@ void initSerial() {
 
 void setup() {
     initSerial();
+    initServoDriver();
 
     // Connect to WiFi. Create Access Point as a fallback
     if (!connectToWiFi() && !createAccessPoint())
         return;
     initServer();
+}
 
     initServoController();
 }
