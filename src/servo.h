@@ -1,16 +1,17 @@
 #include "utils.h"
 #include <Arduino.h>
 
-typedef float Angle;
 typedef uint16_t PWMTicks;
 
 struct ServoSpecs {
     // PWM frequency in Hz
-    float frequency;
+    Herz frequency;
+    // Time it takes the servo to turn 1˚
+    Miliseconds msPerDegree;
 };
 
-ServoSpecs MG_996R_SPECS = {50};
-ServoSpecs SG_90_SPECS = {50};
+ServoSpecs MG_996R_SPECS = {50, 170 / 60.0};
+ServoSpecs SG_90_SPECS = {50, 100 / 60.0};
 
 class Servo {
   public:

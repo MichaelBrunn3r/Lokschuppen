@@ -28,7 +28,7 @@ Servo SERVOS[] = {
 AsyncWebServer server(80);
 IPAddress ip;
 
-Adafruit_PWMServoDriver servoController = Adafruit_PWMServoDriver(0x40);
+Adafruit_PWMServoDriver servoDriver = Adafruit_PWMServoDriver(0x40);
 
 void handleRoot(AsyncWebServerRequest* request) {
     if (!SPIFFS.begin()) {
@@ -71,9 +71,16 @@ void initServer() {
 }
 
 void initServoController() {
-    servoController.begin();
-    servoController.setOscillatorFrequency(27000000);
-    servoController.setPWMFreq(servoSpecs.frequency);
+    servoDriver.begin();
+    servoDriver.setOscillatorFrequency(27000000);
+    servoDriver.setPWMFreq(servoSpecs.frequency);
+}
+
+void initSerial() {
+    Serial.begin(115200);
+    while (!Serial && !Serial.available()) {
+    }
+    Serial.println();
 }
 
 void setup() {
@@ -82,25 +89,14 @@ void setup() {
         pinMode(BUTTON_PINS[i], INPUT_PULLDOWN);
     }
 
-    // Init serial connection
-    Serial.begin(115200);
-    while (!Serial && !Serial.available()) {
-    }
-    Serial.println();
+    initSerial();
 
     // Connect to WiFi. Create Access Point as a fallback
-    // if (!connectToWiFi() && !createAccessPoint())
-    //     return;
-    // initServer();
+    if (!connectToWiFi() && !createAccessPoint())
+        return;
+    initServer();
 
     initServoController();
 }
 
-void loop() {
-    servoController.setPWM(0, 0, angleToTicks(0, servoSpecs.angleRange, SERVO_TICK_RANGES[0]));
-    delay(1000);
-    servoController.setPWM(0, 0, angleToTicks(-100, servoSpecs.angleRange, SERVO_TICK_RANGES[0]));
-    delay(1000);
-    servoController.setPWM(0, 0, angleToTicks(100, servoSpecs.angleRange, SERVO_TICK_RANGES[0]));
-    delay(1000);
-}
+void loop() {}
