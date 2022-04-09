@@ -15,11 +15,12 @@
 #include "gate.h"
 #include "servo.h"
 
-uint8_t BUTTON_PINS[] = {
-    GPIO_NUM_32, GPIO_NUM_33, GPIO_NUM_25, GPIO_NUM_26, GPIO_NUM_27, GPIO_NUM_14, GPIO_NUM_12,
+InterruptButton BUTTONS[] = {
+    InterruptButton(GPIO_NUM_32), InterruptButton(GPIO_NUM_33), InterruptButton(GPIO_NUM_25),
+    InterruptButton(GPIO_NUM_26), InterruptButton(GPIO_NUM_27), InterruptButton(GPIO_NUM_14),
+    InterruptButton(GPIO_NUM_12),
 };
-uint8_t LAST_BUTTON_STATE[] = {LOW, LOW, LOW, LOW, LOW, LOW, LOW};
-const size_t NUM_BUTTONS = sizeof(BUTTON_PINS) / sizeof(uint8_t);
+const size_t NUM_BUTTONS = sizeof(BUTTONS) / sizeof(InterruptButton);
 
 ServoSpecs SERVO_SPECS = SG_90_SPECS;
 Servo SERVOS[] = {
@@ -53,7 +54,7 @@ void initSerial() {
 
 void initButtons() {
     for (int i = 0; i < NUM_BUTTONS; i++) {
-        pinMode(BUTTON_PINS[i], INPUT_PULLDOWN);
+        BUTTONS[i].attach();
     }
 }
 
@@ -126,13 +127,9 @@ void toggleGate(size_t gateIdx) {
 
 void loop() {
     for (int i = 0; i < NUM_BUTTONS; i++) {
-        uint8_t btn = BUTTON_PINS[i];
-        uint8_t currentState = digitalRead(btn);
-        if (currentState != LAST_BUTTON_STATE[i]) {
-            if (LAST_BUTTON_STATE[i] == LOW && currentState == HIGH) {
-                toggleGate(i);
-            }
-            LAST_BUTTON_STATE[i] = currentState;
+        if (BUTTONS[i].wasPressed()) {
+            Serial.printf("Button %d was pressed\n", i);
+            toggleGate(i);
         }
     }
 }
