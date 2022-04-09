@@ -1,24 +1,57 @@
-<html>
-	<head>
-		<title>Lokschuppen</title>
-		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<style>
-			html, body {
-				--color-accent: #4a3dbd;
-				padding: 0;
-				margin: 0;
-				font-family: Arial, Helvetica, sans-serif;
-				text-align: center;
-			}
+<!DOCTYPE html>
+<html lang="de">
+    <head>
+        <title>Lokschuppen</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-			nav {
-				background-color: var(--color-accent);
-				padding: 8px;
-			}
-		</style>
-	</head>
-	<body>
-		<nav>Lokschuppen Steuerung</nav>
-		<p>Hello from filesystem</p>
-	</body>
+        <link rel="stylesheet" href="defaults.css" />
+        <style>
+            body {
+                --col-accent: #6c6adf;
+                --col-txt-accent: white;
+
+                color: #1d2125;
+            }
+
+            header {
+                padding-left: 1.5rem;
+                padding-right: 1.5rem;
+                padding-top: 0.75rem;
+                padding-bottom: 0.75rem;
+                margin-left: auto;
+                margin-right: auto;
+
+                background: var(--col-accent);
+                color: var(--col-txt-accent);
+            }
+
+            main {
+                max-width: 56rem;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            nav {
+                display: flex;
+                justify-content: space-between;
+                width: 100%;
+                max-width: 56rem;
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <nav>
+                <ul>
+                    <li>
+                        <h1>Lokschuppen</h1>
+                    </li>
+                </ul>
+            </nav>
+        </header>
+        <main>
+            <p>Controls</p>
+        </main>
+    </body>
 </html>
