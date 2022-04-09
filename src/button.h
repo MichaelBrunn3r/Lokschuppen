@@ -5,27 +5,29 @@ class InterruptButton {
 
   public:
     InterruptButton(uint8_t pin, uint8_t mode = INPUT, bool highIsPressed = true) {
-        this->pin = pin;
-        this->mode = mode;
-        this->onState = highIsPressed ? HIGH : LOW;
-        this->attach();
+        this->_pin = pin;
+        this->_mode = mode;
+        this->_onState = highIsPressed ? HIGH : LOW;
+        this->_isPressed = false;
     }
     ~InterruptButton() { detach(); }
 
     void attach() {
-        pinMode(this->pin, this->mode);
-        attachInterrupt(this->pin, std::bind(&InterruptButton::handleStateChanged, this), CHANGE);
+        pinMode(this->_pin, this->_mode);
+        attachInterrupt(this->_pin, std::bind(&InterruptButton::handleStateChanged, this), CHANGE);
     }
 
-    void detach() { detachInterrupt(this->pin); }
+    void detach() { detachInterrupt(this->_pin); }
 
-    bool isPressed() { return this->pressed; }
+    bool isPressed() { return this->_isPressed; }
 
   private:
-    uint8_t pin;
-    volatile uint8_t mode;
-    volatile uint8_t onState;
-    volatile bool pressed;
+    uint8_t _pin;
+    volatile uint8_t _mode;
+    volatile uint8_t _onState;
+    volatile bool _isPressed;
 
-    void IRAM_ATTR handleStateChanged() { pressed = digitalRead(pin) == onState; }
+    void IRAM_ATTR handleStateChanged() {
+        this->_isPressed = digitalRead(this->_pin) == this->_onState;
+    }
 };

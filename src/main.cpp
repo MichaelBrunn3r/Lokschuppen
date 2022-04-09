@@ -12,28 +12,50 @@
 #include "button.h"
 #include "credentials.h"
 #include "debug.h"
+#include "gate.h"
 #include "servo.h"
 
-InterruptButton BUTTONS[] = {
-    InterruptButton(GPIO_NUM_32, INPUT_PULLDOWN), InterruptButton(GPIO_NUM_33, INPUT_PULLDOWN),
-    InterruptButton(GPIO_NUM_25, INPUT_PULLDOWN), InterruptButton(GPIO_NUM_26, INPUT_PULLDOWN),
-    InterruptButton(GPIO_NUM_27, INPUT_PULLDOWN), InterruptButton(GPIO_NUM_14, INPUT_PULLDOWN),
-    InterruptButton(GPIO_NUM_12, INPUT_PULLDOWN),
+uint8_t BUTTON_PINS[] = {
+    GPIO_NUM_32, GPIO_NUM_33, GPIO_NUM_25, GPIO_NUM_26, GPIO_NUM_27, GPIO_NUM_14, GPIO_NUM_12,
 };
-const size_t NUM_BUTTONS = sizeof(BUTTONS) / sizeof(InterruptButton);
+uint8_t LAST_BUTTON_STATE[] = {LOW, LOW, LOW, LOW, LOW, LOW, LOW};
+const size_t NUM_BUTTONS = sizeof(BUTTON_PINS) / sizeof(uint8_t);
 
-ServoSpecs servoSpecs = SG_90_SPECS;
+ServoSpecs SERVO_SPECS = SG_90_SPECS;
 Servo SERVOS[] = {
     Servo(48, 530, 7, 219.090912),
     Servo(48, 530, 7.164179, 215.820908),
     Servo(48, 530, -0.918367, 221.326523),
     Servo(48, 530, 6.887755, 221.326523),
 };
+const size_t NUM_SERVOS = sizeof(SERVOS) / sizeof(Servo);
+
+Gate GATES[] = {{false}, {false}, {false}, {false}, {false}, {false}, {false}};
+const size_t NUM_GATES = sizeof(GATES) / sizeof(Gate);
 
 AsyncWebServer server(80);
 IPAddress ip;
 
 Adafruit_PWMServoDriver servoDriver = Adafruit_PWMServoDriver(0x40);
+
+void initServoDriver() {
+    servoDriver.begin();
+    servoDriver.setOscillatorFrequency(27000000);
+    servoDriver.setPWMFreq(SERVO_SPECS.frequency);
+}
+
+void initSerial() {
+    Serial.begin(115200);
+    while (!Serial && !Serial.available()) {
+    }
+    Serial.println();
+}
+
+void initButtons() {
+    for (int i = 0; i < NUM_BUTTONS; i++) {
+        pinMode(BUTTON_PINS[i], INPUT_PULLDOWN);
+    }
+}
 
 void handleRoot(AsyncWebServerRequest* request) {
     if (!SPIFFS.begin()) {
@@ -75,26 +97,42 @@ void initServer() {
     server.begin();
 }
 
-void initServoDriver() {
-    servoDriver.begin();
-    servoDriver.setOscillatorFrequency(27000000);
-    servoDriver.setPWMFreq(servoSpecs.frequency);
-}
-
-void initSerial() {
-    Serial.begin(115200);
-    while (!Serial && !Serial.available()) {
-    }
-    Serial.println();
-}
-
 void setup() {
     initSerial();
     initServoDriver();
+    initButtons();
 
     // Connect to WiFi. Create Access Point as a fallback
-    if (!connectToWiFi() && !createAccessPoint())
-        return;
-    initServer();
+    // if (!connectToWiFi() && !createAccessPoint())
+    //     return;
+    // initServer();
 }
-void loop() {}
+
+void toggleGate(size_t gateIdx) {
+    if (gateIdx >= NUM_GATES || gateIdx >= NUM_SERVOS)
+        return;
+
+    Gate* gate = &GATES[gateIdx];
+    Servo servo = SERVOS[gateIdx];
+
+    if (gate->isOpen) {
+        servoDriver.setPWM(gateIdx, 0, servo.angleToTicks(-90));
+    } else {
+        servoDriver.setPWM(gateIdx, 0, servo.angleToTicks(90));
+    }
+
+    gate->isOpen = !gate->isOpen;
+}
+
+void loop() {
+    for (int i = 0; i < NUM_BUTTONS; i++) {
+        uint8_t btn = BUTTON_PINS[i];
+        uint8_t currentState = digitalRead(btn);
+        if (currentState != LAST_BUTTON_STATE[i]) {
+            if (LAST_BUTTON_STATE[i] == LOW && currentState == HIGH) {
+                toggleGate(i);
+            }
+            LAST_BUTTON_STATE[i] = currentState;
+        }
+    }
+}
