@@ -34,6 +34,8 @@ struct Gate {
     bool isOpen;
 };
 Gate GATES[NUM_SERVOS] = {{false}, {false}, {false}, {false}};
+uint8_t lastServoId = 0;
+unsigned long nextServoMoveTime = 0;
 
 AsyncWebServer server(80);
 IPAddress ip;
@@ -61,6 +63,11 @@ void initServoDriver() {
 void handleButtonEvent(ace_button::AceButton* btn, uint8_t eventType, uint8_t btnState) {
     if (eventType != ace_button::AceButton::kEventClicked)
         return;
+    if (millis() < nextServoMoveTime) {
+        log_i("Another servo is already moving. Next servo can move in: %d ms\n",
+              nextServoMoveTime - millis());
+        return;
+    }
 
     uint8_t id = btn->getId();
     Gate* gate = &GATES[id];
@@ -69,6 +76,9 @@ void handleButtonEvent(ace_button::AceButton* btn, uint8_t eventType, uint8_t bt
     // Toggle gate state
     gate->isOpen = !gate->isOpen;
     log_i("Gate %d: %s", id, gate->isOpen ? "Openening" : "Closing");
+
+    lastServoId = id;
+    nextServoMoveTime = millis() + 1000;
 
     // Move servo
     if (gate->isOpen) {
