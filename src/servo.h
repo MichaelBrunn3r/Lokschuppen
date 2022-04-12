@@ -10,23 +10,25 @@ struct ServoSpecs {
     Miliseconds msPerDegree;
 };
 
-ServoSpecs MG_996R_SPECS = {50, 170 / 60.0};
-ServoSpecs SG_90_SPECS = {50, 100 / 60.0};
+ServoSpecs SPECS_MG_996R = {50, 170 / 60.0};
+ServoSpecs SPECS_SG_90 = {50, 100 / 60.0};
 
 class Servo {
   public:
     Range<PWMTicks> tickRange;
     Angle offset;
-    Range<Angle> angleRange;
+    Range<Angle> rotationRange;
+    ServoSpecs* specs;
 
-    Servo(PWMTicks minTicks, PWMTicks maxTicks, Angle offset, Angle maxAngle) {
+    Servo(PWMTicks minTicks, PWMTicks maxTicks, Angle offset, Angle maxAngle, ServoSpecs* specs) {
         this->tickRange = {minTicks, maxTicks};
-        this->angleRange = {-maxAngle / 2, maxAngle / 2};
+        this->rotationRange = {-maxAngle / 2, maxAngle / 2};
         this->offset = offset;
+        this->specs = specs;
     }
 
     PWMTicks angleToTicks(Angle angle) {
-        return map(angle + this->offset, this->angleRange.min, this->angleRange.max,
+        return map(angle + this->offset, this->rotationRange.min, this->rotationRange.max,
                    this->tickRange.min, this->tickRange.max);
     }
 };

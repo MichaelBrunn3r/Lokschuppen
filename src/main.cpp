@@ -14,12 +14,11 @@
 #include "debug.h"
 #include "servo.h"
 
-ServoSpecs SERVO_SPECS = SG_90_SPECS;
 Servo SERVOS[] = {
-    Servo(48, 530, 7, 219.090912),
-    Servo(48, 530, 7.164179, 215.820908),
-    Servo(48, 530, -0.918367, 221.326523),
-    Servo(48, 530, 6.887755, 221.326523),
+    Servo(48, 530, 7, 219.090912, &SPECS_SG_90),
+    Servo(48, 530, 7.164179, 215.820908, &SPECS_SG_90),
+    Servo(48, 530, -0.918367, 221.326523, &SPECS_SG_90),
+    Servo(48, 530, 6.887755, 221.326523, &SPECS_SG_90),
 };
 const uint8_t NUM_SERVOS = sizeof(SERVOS) / sizeof(Servo);
 Adafruit_PWMServoDriver servoDriver = Adafruit_PWMServoDriver(0x40);
@@ -56,7 +55,7 @@ void turnOffAllServos() {
 void initServoDriver() {
     servoDriver.begin();
     servoDriver.setOscillatorFrequency(27000000);
-    servoDriver.setPWMFreq(SERVO_SPECS.frequency);
+    servoDriver.setPWMFreq(SERVOS[0].specs->frequency);
     turnOffAllServos();
 }
 
