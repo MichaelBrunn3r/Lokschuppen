@@ -1,3 +1,4 @@
+#include <AceButton.h>
 #include <Adafruit_PWMServoDriver.h>
 #include <Arduino.h>
 #include <AsyncTCP.h>
@@ -9,18 +10,9 @@
 #define USE_INTRANET true
 #define DEBUG true
 
-#include "button.h"
 #include "credentials.h"
 #include "debug.h"
-#include "gate.h"
 #include "servo.h"
-
-InterruptButton BUTTONS[] = {
-    InterruptButton(GPIO_NUM_32), InterruptButton(GPIO_NUM_33), InterruptButton(GPIO_NUM_25),
-    InterruptButton(GPIO_NUM_26), InterruptButton(GPIO_NUM_27), InterruptButton(GPIO_NUM_14),
-    InterruptButton(GPIO_NUM_12),
-};
-const size_t NUM_BUTTONS = sizeof(BUTTONS) / sizeof(InterruptButton);
 
 ServoSpecs SERVO_SPECS = SG_90_SPECS;
 Servo SERVOS[] = {
@@ -29,21 +21,22 @@ Servo SERVOS[] = {
     Servo(48, 530, -0.918367, 221.326523),
     Servo(48, 530, 6.887755, 221.326523),
 };
-const size_t NUM_SERVOS = sizeof(SERVOS) / sizeof(Servo);
+const uint8_t NUM_SERVOS = sizeof(SERVOS) / sizeof(Servo);
+Adafruit_PWMServoDriver servoDriver = Adafruit_PWMServoDriver(0x40);
 
-Gate GATES[] = {{false}, {false}, {false}, {false}, {false}, {false}, {false}};
-const size_t NUM_GATES = sizeof(GATES) / sizeof(Gate);
+uint8_t BUTTON_PINS[NUM_SERVOS] = {
+    GPIO_NUM_32, GPIO_NUM_33, GPIO_NUM_25, GPIO_NUM_26,
+    // GPIO_NUM_27, GPIO_NUM_14, GPIO_NUM_12,
+};
+ace_button::AceButton BUTTONS[NUM_SERVOS];
+
+struct Gate {
+    bool isOpen;
+};
+Gate GATES[NUM_SERVOS] = {{false}, {false}, {false}, {false}};
 
 AsyncWebServer server(80);
 IPAddress ip;
-
-Adafruit_PWMServoDriver servoDriver = Adafruit_PWMServoDriver(0x40);
-
-void initServoDriver() {
-    servoDriver.begin();
-    servoDriver.setOscillatorFrequency(27000000);
-    servoDriver.setPWMFreq(SERVO_SPECS.frequency);
-}
 
 void initSerial() {
     Serial.begin(115200);
@@ -52,9 +45,47 @@ void initSerial() {
     Serial.println();
 }
 
+void turnOffAllServos() {
+    for (int i = 0; i < NUM_SERVOS; i++) {
+        servoDriver.setPin(i, 0);
+    }
+}
+
+void initServoDriver() {
+    servoDriver.begin();
+    servoDriver.setOscillatorFrequency(27000000);
+    servoDriver.setPWMFreq(SERVO_SPECS.frequency);
+    turnOffAllServos();
+}
+
+void handleButtonEvent(ace_button::AceButton* btn, uint8_t eventType, uint8_t btnState) {
+    if (eventType != ace_button::AceButton::kEventClicked)
+        return;
+
+    uint8_t id = btn->getId();
+    Gate* gate = &GATES[id];
+    Servo* servo = &SERVOS[id];
+
+    // Toggle gate state
+    gate->isOpen = !gate->isOpen;
+    log_i("Gate %d: %s", id, gate->isOpen ? "Openening" : "Closing");
+
+    // Move servo
+    if (gate->isOpen) {
+        servoDriver.setPin(id, servo->angleToTicks(-90));
+    } else {
+        servoDriver.setPin(id, servo->angleToTicks(90));
+    }
+}
+
 void initButtons() {
-    for (int i = 0; i < NUM_BUTTONS; i++) {
-        BUTTONS[i].attach();
+    ace_button::ButtonConfig* cfg = ace_button::ButtonConfig::getSystemButtonConfig();
+    cfg->setFeature(ace_button::ButtonConfig::kFeatureClick);
+    cfg->setEventHandler(handleButtonEvent);
+
+    for (int i = 0; i < NUM_SERVOS; i++) {
+        pinMode(BUTTON_PINS[i], INPUT_PULLDOWN);
+        BUTTONS[i].init(BUTTON_PINS[i], LOW, i);
     }
 }
 
@@ -109,27 +140,8 @@ void setup() {
     // initServer();
 }
 
-void toggleGate(size_t gateIdx) {
-    if (gateIdx >= NUM_GATES || gateIdx >= NUM_SERVOS)
-        return;
-
-    Gate* gate = &GATES[gateIdx];
-    Servo servo = SERVOS[gateIdx];
-
-    if (gate->isOpen) {
-        servoDriver.setPWM(gateIdx, 0, servo.angleToTicks(-90));
-    } else {
-        servoDriver.setPWM(gateIdx, 0, servo.angleToTicks(90));
-    }
-
-    gate->isOpen = !gate->isOpen;
-}
-
 void loop() {
-    for (int i = 0; i < NUM_BUTTONS; i++) {
-        if (BUTTONS[i].wasPressed()) {
-            Serial.printf("Button %d was pressed\n", i);
-            toggleGate(i);
-        }
+    for (int i = 0; i < NUM_SERVOS; i++) {
+        BUTTONS[i].check();
     }
 }
